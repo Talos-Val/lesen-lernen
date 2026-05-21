@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lesen Lernen</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700;800&family=Nunito:wght@400;700;900&display=swap');
+
+  :root {
+    --bg: #FFF8F0;
+    --card: #FFFFFF;
+    --primary: #FF6B35;
+    --primary-dark: #E85520;
+    --success: #4CAF7D;
+    --success-dark: #388E5E;
+    --danger: #E74C3C;
+    --danger-dark: #C0392B;
+    --text: #2C2C2C;
+    --text-light: #888;
+    --shadow: 0 8px 32px rgba(0,0,0,0.12);
+    --radius: 24px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text);
+    padding: 16px;
+    background-image: radial-gradient(circle at 20% 20%, #FFE0D0 0%, transparent 50%),
+                      radial-gradient(circle at 80% 80%, #FFD4C2 0%, transparent 50%);
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 0 20px;
+  }
+
+  .logo {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+
+  .menu-btn {
+    background: var(--card);
+    border: none;
+    border-radius: 14px;
+    padding: 10px 18px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    transition: transform .15s, box-shadow .15s;
+    color: var(--text);
+  }
+  .menu-btn:active { transform: scale(0.95); }
+
+  /* ─── SCREENS ─── */
+  .screen { display: none; width: 100%; max-width: 600px; }
+  .screen.active { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+  /* ─── MENU ─── */
+  .menu-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 32px 28px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .menu-card h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.5rem;
+    color: var(--primary);
+    margin-bottom: 4px;
+  }
+
+  .big-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--bg);
+    border: 3px solid transparent;
+    border-radius: 18px;
+    padding: 18px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left;
+    color: var(--text);
+  }
+  .big-btn .icon { font-size: 2rem; }
+  .big-btn:hover, .big-btn.active-mode {
+    border-color: var(--primary);
+    background: #FFF0E8;
+    transform: translateX(4px);
+  }
+  .big-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+
+  .divider { height: 1px; background: #EEE; margin: 4px 0; }
+
+  /* ─── PROGRESS BAR ─── */
+  .progress-wrap {
+    width: 100%;
+    background: #EEE;
+    border-radius: 99px;
+    height: 14px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--primary), #FF9260);
+    transition: width .6s cubic-bezier(.34,1.56,.64,1);
+  }
+  .progress-label {
+    font-size: .9rem;
+    color: var(--text-light);
+    font-weight: 700;
+    text-align: center;
+  }
+
+  /* ─── MAIN CARD ─── */
+  .main-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 40px 28px 32px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .letter-display {
+    font-family: 'Baloo 2', cursive;
+    font-size: clamp(7rem, 25vw, 10rem);
+    font-weight: 800;
+    color: var(--primary);
+    line-height: 1;
+    text-align: center;
+    animation: pop .4s cubic-bezier(.34,1.56,.64,1);
+    text-shadow: 4px 6px 0px #FFD4C2;
+    user-select: none;
+  }
+
+  @keyframes pop {
+    from { transform: scale(0.5); opacity: 0; }
+    to   { transform: scale(1);   opacity: 1; }
+  }
+
+  .speak-btn {
+    background: linear-gradient(135deg, var(--primary), #FF9260);
+    color: white;
+    border: none;
+    border-radius: 99px;
+    padding: 14px 36px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255,107,53,.35);
+    transition: all .2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .speak-btn:active { transform: scale(0.94); }
+
+  /* ─── ANSWER BUTTONS ─── */
+  .answer-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    width: 100%;
+  }
+
+  .ans-btn {
+    border: none;
+    border-radius: 18px;
+    padding: 22px 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  }
+  .ans-btn:active { transform: scale(0.93); }
+  .ans-btn .sub { font-size: .85rem; font-weight: 700; opacity: .7; }
+
+  .btn-correct {
+    background: linear-gradient(135deg, var(--success), #70CF97);
+    color: white;
+    box-shadow: 0 6px 20px rgba(76,175,125,.35);
+  }
+  .btn-wrong {
+    background: linear-gradient(135deg, var(--danger), #F08070);
+    color: white;
+    box-shadow: 0 6px 20px rgba(231,76,60,.35);
+  }
+
+  /* hidden until timer fires */
+  .answer-row.hidden { visibility: hidden; }
+
+  /* ─── STATS ─── */
+  .stats-row {
+    display: flex;
+    gap: 16px;
+    width: 100%;
+  }
+  .stat-box {
+    flex: 1;
+    background: var(--bg);
+    border-radius: 16px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-num {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .stat-lbl { font-size: .8rem; color: var(--text-light); font-weight: 700; }
+
+  /* ─── CELEBRATION ─── */
+  .celebration {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    animation: pop .5s ease;
+  }
+  .celebration.show { display: flex; }
+  .celebration-emoji { font-size: 5rem; animation: bounce 1s infinite; }
+  @keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-16px); }
+  }
+  .celebration h2 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 2rem;
+    color: var(--success);
+    text-align: center;
+  }
+
+  /* ─── SAVE/LOAD ─── */
+  .save-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    width: 100%;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .save-section h3 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+  .save-row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .action-btn {
+    flex: 1;
+    min-width: 120px;
+    background: var(--bg);
+    border: 2px solid #DDD;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-family: 'Nunito', sans-serif;
+    font-size: .95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s;
+    color: var(--text);
+  }
+  .action-btn:hover { border-color: var(--primary); background: #FFF0E8; }
+
+  textarea.hex-area {
+    width: 100%;
+    height: 80px;
+    border-radius: 12px;
+    border: 2px solid #DDD;
+    padding: 10px;
+    font-family: monospace;
+    font-size: .8rem;
+    resize: vertical;
+    color: #555;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #222;
+    color: white;
+    padding: 12px 24px;
+    border-radius: 99px;
+    font-weight: 700;
+    font-size: .95rem;
+    transition: transform .3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .mode-tag {
+    background: var(--primary);
+    color: white;
+    border-radius: 99px;
+    padding: 4px 14px;
+    font-size: .85rem;
+    font-weight: 800;
+  }
+
+  /* ─── ch-variant notice ─── */
+  .variant-hint {
+    font-size: .85rem;
+    color: var(--text-light);
+    font-weight: 700;
+    text-align: center;
+    min-height: 1.2em;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">🔤 Lesen</div>
+  <button class="menu-btn" onclick="showScreen('menu')">☰ Menü</button>
+</header>
+
+<!-- ══════════ MENU SCREEN ══════════ -->
+<div id="screen-menu" class="screen">
+  <div class="menu-card">
+    <h2>📚 Übungsmodus</h2>
+
+    <button class="big-btn" id="btn-mode-letters" onclick="startMode('letters')">
+      <span class="icon">🔡</span>
+      <div>
+        <div>Einzelne Buchstaben</div>
+        <div style="font-size:.85rem;font-weight:400;color:var(--text-light)">Buchstaben und Laute üben</div>
+      </div>
+    </button>
+
+    <button class="big-btn" id="btn-mode-syllables" onclick="startMode('syllables')" disabled>
+      <span class="icon">📝</span>
+      <div>
+        <div>Silben üben</div>
+        <div style="font-size:.85rem;font-weight:400;color:var(--text-light)" id="syllable-lock-hint">🔒 Erst Buchstaben meistern</div>
+      </div>
+    </button>
+
+    <div class="divider"></div>
+
+    <div class="progress-label" id="menu-progress-label">Laden …</div>
+    <div class="progress-wrap"><div class="progress-fill" id="menu-progress-bar" style="width:0%"></div></div>
+  </div>
+
+  <!-- Save / Load -->
+  <div class="save-section">
+    <h3>💾 Spielstand</h3>
+    <div class="save-row">
+      <button class="action-btn" onclick="exportSave()">📤 Exportieren (.txt)</button>
+      <button class="action-btn" onclick="document.getElementById('file-input').click()">📥 Importieren (.txt)</button>
+      <button class="action-btn" onclick="resetSave()" style="color:var(--danger)">🗑️ Zurücksetzen</button>
+    </div>
+    <input type="file" id="file-input" accept=".txt" style="display:none" onchange="importFromFile(event)">
+  </div>
+</div>
+
+<!-- ══════════ PRACTICE SCREEN ══════════ -->
+<div id="screen-practice" class="screen">
+  <div style="width:100%;display:flex;align-items:center;justify-content:space-between">
+    <span class="mode-tag" id="mode-label">Buchstaben</span>
+    <div style="font-size:.9rem;color:var(--text-light);font-weight:700" id="streak-display">🔥 0</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-box">
+      <div class="stat-num" id="stat-total">0</div>
+      <div class="stat-lbl">Versuche</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-correct">0%</div>
+      <div class="stat-lbl">Richtig</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-num" id="stat-streak">0</div>
+      <div class="stat-lbl">Serie</div>
+    </div>
+  </div>
+
+  <div class="progress-wrap" style="width:100%">
+    <div class="progress-fill" id="practice-progress" style="width:0%"></div>
+  </div>
+
+  <!-- Celebration overlay -->
+  <div class="celebration" id="celebration">
+    <div class="celebration-emoji">🎉</div>
+    <h2>Super! Silben freigeschaltet!</h2>
+    <button class="speak-btn" onclick="hideCelebration()" style="background:linear-gradient(135deg,var(--success),#70CF97)">
+      Weiter üben! 💪
+    </button>
+  </div>
+
+  <div class="main-card" id="main-card">
+    <div class="letter-display" id="letter-display">?</div>
+    <div class="variant-hint" id="variant-hint"></div>
+    <button class="speak-btn" onclick="playCurrentSound()">🔊 Nochmal hören</button>
+
+    <div class="answer-row hidden" id="answer-row">
+      <button class="ans-btn btn-correct" onclick="answer(true)">
+        ✅
+        <span class="sub">Richtig</span>
+      </button>
+      <button class="ans-btn btn-wrong" onclick="answer(false)">
+        ❌
+        <span class="sub">Falsch</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════ */
+
+// Each entry: { display, sounds: [ {text, lang} ] }
+// "text" is what the TTS says. We say just the phoneme sound, not the letter name.
+const LETTERS = [
+  { display: 'A', sounds: [{ text: 'a', lang: 'de-DE' }] },
+  { display: 'E', sounds: [{ text: 'e', lang: 'de-DE' }] },
+  { display: 'I', sounds: [{ text: 'i', lang: 'de-DE' }] },
+  { display: 'O', sounds: [{ text: 'o', lang: 'de-DE' }] },
+  { display: 'U', sounds: [{ text: 'u', lang: 'de-DE' }] },
+  { display: 'Ä', sounds: [{ text: 'ä', lang: 'de-DE' }] },
+  { display: 'Ö', sounds: [{ text: 'ö', lang: 'de-DE' }] },
+  { display: 'Ü', sounds: [{ text: 'ü', lang: 'de-DE' }] },
+  { display: 'B', sounds: [{ text: 'b', lang: 'de-DE' }] },
+  { display: 'D', sounds: [{ text: 'd', lang: 'de-DE' }] },
+  { display: 'F', sounds: [{ text: 'f', lang: 'de-DE' }] },
+  { display: 'G', sounds: [{ text: 'g', lang: 'de-DE' }] },
+  { display: 'H', sounds: [{ text: 'h', lang: 'de-DE' }] },
+  { display: 'K', sounds: [{ text: 'k', lang: 'de-DE' }] },
+  { display: 'L', sounds: [{ text: 'l', lang: 'de-DE' }] },
+  { display: 'M', sounds: [{ text: 'm', lang: 'de-DE' }] },
+  { display: 'N', sounds: [{ text: 'n', lang: 'de-DE' }] },
+  { display: 'P', sounds: [{ text: 'p', lang: 'de-DE' }] },
+  { display: 'R', sounds: [{ text: 'r', lang: 'de-DE' }] },
+  { display: 'S', sounds: [{ text: 's', lang: 'de-DE' }] },
+  { display: 'T', sounds: [{ text: 't', lang: 'de-DE' }] },
+  { display: 'W', sounds: [{ text: 'w', lang: 'de-DE' }] },
+  { display: 'Z', sounds: [{ text: 'z', lang: 'de-DE' }] },
+  { display: 'SCH', sounds: [{ text: 'sch', lang: 'de-DE' }] },
+  { display: 'ST',  sounds: [{ text: 'scht', lang: 'de-DE' }] },
+  { display: 'SP',  sounds: [{ text: 'schp', lang: 'de-DE' }] },
+  {
+    display: 'CH',
+    sounds: [
+      { text: 'Bach', lang: 'de-DE', hint: 'wie in „Buch"' },
+      { text: 'ich',  lang: 'de-DE', hint: 'wie in „ich"' }
+    ]
+  },
+  { display: 'EI', sounds: [{ text: 'ei', lang: 'de-DE' }] },
+  { display: 'AU', sounds: [{ text: 'au', lang: 'de-DE' }] },
+  { display: 'EU', sounds: [{ text: 'eu', lang: 'de-DE' }] },
+  { display: 'CK', sounds: [{ text: 'ck', lang: 'de-DE' }] },
+];
+
+// Simple 2–3 letter German syllables
+const SYLLABLES = [
+  'MA','ME','MI','MO','MU','BA','BE','BI','BO','BU',
+  'LA','LE','LI','LO','LU','NA','NE','NI','NO','NU',
+  'SA','SE','SI','SO','SU','TA','TE','TI','TO','TU',
+  'WA','WE','WI','WO','WU','FA','FE','FI','FO','FU',
+  'DA','DE','DI','DO','DU','RA','RE','RI','RO','RU',
+  'KA','KE','KI','KO','KU','PA','PE','PI','PO','PU',
+  'MAN','BAN','SAN','TAN','LAN','FAN',
+  'MIT','BIT','SIT','LIT','NIT',
+  'BIN','SIN','LIN','FIN','WIN',
+  'BEL','MEL','SEL','NEL','FEL',
+  'SCH-A','SCH-E','SCH-I','SCH-O','SCH-U',
+];
+
+/* ═══════════════════════════════════════════
+   STATE
+═══════════════════════════════════════════ */
+const SAVE_KEY = 'lesen_lernen_v1';
+
+let state = {
+  mode: 'letters',          // 'letters' | 'syllables'
+  syllablesUnlocked: false,
+  // letter stats: { [display]: { attempts, correct } }
+  letterStats: {},
+  // running window for unlock check
+  recentAttempts: [],       // last 75 booleans
+  // session
+  currentIndex: null,
+  currentSoundIdx: 0,       // for multi-sound items (ch)
+  sessionTotal: 0,
+  sessionCorrect: 0,
+  streak: 0,
+  answerVisible: false,
+};
+
+/* ═══════════════════════════════════════════
+   SAVE / LOAD
+═══════════════════════════════════════════ */
+function saveState() {
+  try {
+    const json = JSON.stringify(state);
+    localStorage.setItem(SAVE_KEY, json);
+  } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (raw) {
+      const loaded = JSON.parse(raw);
+      Object.assign(state, loaded);
+    }
+  } catch(e) {}
+}
+
+// HEX encode / decode
+function toHex(str) {
+  return Array.from(new TextEncoder().encode(str))
+    .map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function fromHex(hex) {
+  const bytes = new Uint8Array(hex.match(/.{1,2}/g).map(h => parseInt(h, 16)));
+  return new TextDecoder().decode(bytes);
+}
+
+function exportSave() {
+  const json = JSON.stringify(state);
+  const hex = toHex(json);
+
+  const blob = new Blob([hex], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'spielstand.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Spielstand exportiert! ✅');
+}
+
+
+function importFromFile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => importFromHex(e.target.result.trim());
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function importFromHex(hex) {
+  try {
+    const json = fromHex(hex);
+    const loaded = JSON.parse(json);
+    Object.assign(state, loaded);
+    saveState();
+    updateMenu();
+    toast('Spielstand geladen! ✅');
+  } catch(e) {
+    toast('Fehler beim Laden ❌');
+  }
+}
+
+function resetSave() {
+  if (!confirm('Wirklich alles zurücksetzen?')) return;
+  state = {
+    mode: 'letters',
+    syllablesUnlocked: false,
+    letterStats: {},
+    recentAttempts: [],
+    currentIndex: null,
+    currentSoundIdx: 0,
+    sessionTotal: 0,
+    sessionCorrect: 0,
+    streak: 0,
+    answerVisible: false,
+  };
+  saveState();
+  updateMenu();
+  toast('Zurückgesetzt 🗑️');
+}
+
+/* ═══════════════════════════════════════════
+   TTS
+═══════════════════════════════════════════ */
+function speak(text, lang = 'de-DE') {
+  return new Promise(resolve => {
+    if (!window.speechSynthesis) { resolve(); return; }
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.lang = lang;
+    utt.rate = 0.7;
+    utt.pitch = 1.1;
+    utt.onend = resolve;
+    utt.onerror = resolve;
+    // Prefer a German voice
+    const voices = window.speechSynthesis.getVoices();
+    const de = voices.find(v => v.lang.startsWith('de'));
+    if (de) utt.voice = de;
+    window.speechSynthesis.speak(utt);
+  });
+}
+
+/* ═══════════════════════════════════════════
+   SCREENS
+═══════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+  if (id === 'menu') updateMenu();
+}
+
+function updateMenu() {
+  const total = state.recentAttempts.length;
+  const correct = state.recentAttempts.filter(Boolean).length;
+  const pct = total > 0 ? Math.round(correct / total * 100) : 0;
+
+  document.getElementById('menu-progress-bar').style.width = pct + '%';
+  document.getElementById('menu-progress-label').textContent =
+    total === 0 ? 'Noch keine Versuche' :
+    `${correct} von ${total} richtig (${pct}%)`;
+
+  const btn = document.getElementById('btn-mode-syllables');
+  const hint = document.getElementById('syllable-lock-hint');
+  if (state.syllablesUnlocked) {
+    btn.disabled = false;
+    hint.textContent = '✅ Freigeschaltet!';
+  } else {
+    btn.disabled = true;
+    hint.textContent = '🔒 Erst Buchstaben meistern';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   PRACTICE
+═══════════════════════════════════════════ */
+function startMode(mode) {
+  state.mode = mode;
+  state.sessionTotal = 0;
+  state.sessionCorrect = 0;
+  state.streak = 0;
+  state.answerVisible = false;
+  saveState();
+  showScreen('practice');
+  document.getElementById('mode-label').textContent =
+    mode === 'letters' ? 'Buchstaben' : 'Silben';
+  hideCelebration();
+  nextItem();
+}
+
+function nextItem() {
+  state.answerVisible = false;
+  document.getElementById('answer-row').classList.add('hidden');
+  document.getElementById('variant-hint').textContent = '';
+
+  if (state.mode === 'letters') {
+    state.currentIndex = Math.floor(Math.random() * LETTERS.length);
+    state.currentSoundIdx = 0;
+    const item = LETTERS[state.currentIndex];
+    document.getElementById('letter-display').textContent = item.display;
+    document.getElementById('letter-display').style.animation = 'none';
+    void document.getElementById('letter-display').offsetWidth;
+    document.getElementById('letter-display').style.animation = '';
+  } else {
+    // syllable mode: pick random syllable and display
+    state.currentIndex = Math.floor(Math.random() * SYLLABLES.length);
+    const syl = SYLLABLES[state.currentIndex];
+    // Convert display like "SCH-A" → "SCHA" for visual
+    const displaySyl = syl.replace('-','');
+    document.getElementById('letter-display').textContent = displaySyl;
+    document.getElementById('letter-display').style.animation = 'none';
+    void document.getElementById('letter-display').offsetWidth;
+    document.getElementById('letter-display').style.animation = '';
+  }
+
+  updateStats();
+
+  // Play sound after tiny delay so animation starts first
+  setTimeout(() => playCurrentSound(), 150);
+}
+
+function playCurrentSound() {
+  if (state.mode === 'letters') {
+    const item = LETTERS[state.currentIndex];
+    const sounds = item.sounds;
+
+    if (sounds.length > 1) {
+      // CH: play all variants back-to-back
+      document.getElementById('variant-hint').textContent =
+        sounds.map(s => s.hint).filter(Boolean).join('  •  ');
+      (async () => {
+        for (const s of sounds) {
+          await speak(s.text, s.lang);
+          await new Promise(r => setTimeout(r, 400));
+        }
+      })();
+    } else {
+      speak(sounds[0].text, sounds[0].lang);
+    }
+  } else {
+    // syllable: speak it
+    const syl = SYLLABLES[state.currentIndex].replace('-','');
+    speak(syl, 'de-DE');
+  }
+
+  // Show answer buttons after 5 seconds
+  setTimeout(() => {
+    document.getElementById('answer-row').classList.remove('hidden');
+    state.answerVisible = true;
+  }, 5000);
+}
+
+function answer(correct) {
+  if (!state.answerVisible) return;
+
+  state.sessionTotal++;
+  if (correct) {
+    state.sessionCorrect++;
+    state.streak++;
+  } else {
+    state.streak = 0;
+  }
+
+  // Track in recentAttempts (keep last 75)
+  if (state.mode === 'letters') {
+    state.recentAttempts.push(correct);
+    if (state.recentAttempts.length > 75) state.recentAttempts.shift();
+  }
+
+  // Track per-letter stats
+  if (state.mode === 'letters') {
+    const key = LETTERS[state.currentIndex].display;
+    if (!state.letterStats[key]) state.letterStats[key] = { attempts: 0, correct: 0 };
+    state.letterStats[key].attempts++;
+    if (correct) state.letterStats[key].correct++;
+  }
+
+  checkUnlock();
+  saveState();
+  updateStats();
+  nextItem();
+}
+
+function checkUnlock() {
+  if (state.syllablesUnlocked) return;
+  const arr = state.recentAttempts;
+  if (arr.length < 75) return;
+
+  // Check current window
+  const pct = arr.filter(Boolean).length / arr.length;
+  if (pct >= 0.85) {
+    // Also check if it has been >= 85% for last 30 attempts
+    const last30 = arr.slice(-30);
+    const pct30 = last30.filter(Boolean).length / 30;
+    if (pct30 >= 0.85) {
+      state.syllablesUnlocked = true;
+      showCelebration();
+    }
+  }
+}
+
+function showCelebration() {
+  document.getElementById('celebration').classList.add('show');
+  document.getElementById('main-card').style.display = 'none';
+}
+
+function hideCelebration() {
+  document.getElementById('celebration').classList.remove('show');
+  document.getElementById('main-card').style.display = '';
+}
+
+function updateStats() {
+  const total = state.sessionTotal;
+  const pct = total > 0 ? Math.round(state.sessionCorrect / total * 100) : 0;
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-correct').textContent = pct + '%';
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('streak-display').textContent = '🔥 ' + state.streak;
+
+  // progress bar: toward 85% over 75 attempts
+  const recent = state.recentAttempts;
+  const rPct = recent.length > 0 ? recent.filter(Boolean).length / Math.max(recent.length, 1) * 100 : 0;
+  document.getElementById('practice-progress').style.width = Math.min(rPct, 100) + '%';
+}
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
+
+/* ═══════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════ */
+// Preload voices
+if (window.speechSynthesis) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
+
+loadState();
+updateMenu();
+showScreen('menu');
+</script>
+
+<!-- FOOTER -->
+<footer style="width:100%;max-width:600px;margin:0 auto;text-align:center;padding:20px 0 8px;font-size:.8rem;color:var(--text-light);font-weight:700;">
+  &copy; <span id="footer-year"></span> Titus Wagner
+</footer>
+<script>document.getElementById('footer-year').textContent = new Date().getFullYear();</script>
+
+</body>
+</html>
